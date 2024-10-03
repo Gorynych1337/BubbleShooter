@@ -6,14 +6,17 @@ using UnityEngine;
 public class ScreenEdges : MonoBehaviour
 {
     [SerializeField] private GameObject upEdgeObject;
+    [SerializeField] private GameObject downEdgeObject;
 
     EdgeCollider2D edgeCollider;
     EdgeCollider2D upEdgeCollider;
+    EdgeCollider2D downEdgeCollider;
 
     private void Awake()
     {
         edgeCollider = GetComponent<EdgeCollider2D>();
         upEdgeCollider = upEdgeObject.GetComponent<EdgeCollider2D>();
+        downEdgeCollider = downEdgeObject.GetComponent<EdgeCollider2D>();
     }
 
     void Start()
@@ -26,6 +29,7 @@ public class ScreenEdges : MonoBehaviour
 
         edgeCollider.SetPoints(screenPoints);
         upEdgeCollider.SetPoints(new List<Vector2>() { screenPoints[1], screenPoints[2] });
+        downEdgeCollider.SetPoints(new List<Vector2>() { screenPoints[0], screenPoints[3] });
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
