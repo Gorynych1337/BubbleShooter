@@ -88,7 +88,7 @@ public class BubbleHang : BubbleState
             });
         }
 
-        if (count >= 2) Destroy(gameObject);
+        if (count > 2) Destroy(gameObject);
         return count;
     }
 }
