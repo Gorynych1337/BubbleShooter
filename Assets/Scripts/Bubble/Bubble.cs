@@ -29,6 +29,7 @@ public class Bubble : MonoBehaviour
     public EBubbleColor Color { get { return color; } }
     public EBubbleState State { get { return state; } }
 
+    [ExecuteAlways]
     private void Awake()
     {
         shootState = GetComponentInChildren<BubbleShoot>();
@@ -42,6 +43,18 @@ public class Bubble : MonoBehaviour
 
         visual = GetComponentInChildren<BubbleVisual>();
         visual.Instantiate();
+        SetVisualColor();
+    }
+
+    private void OnValidate()
+    {
+        visual = GetComponentInChildren<BubbleVisual>();
+        visual.Instantiate();
+        SetVisualColor();
+    }
+
+    private void SetVisualColor()
+    {
         switch (color)
         {
             case EBubbleColor.Red: visual.SetColor(UnityEngine.Color.red); break;

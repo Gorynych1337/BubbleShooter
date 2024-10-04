@@ -15,15 +15,14 @@ public class BubbleHang : BubbleState
     [SerializeField] private float frequency;
     [SerializeField] private float distance;
 
-    delegate void HangedBubbleDestroyed(GameObject bubble);
-    event HangedBubbleDestroyed OnBubbleDestroyed;
+    public delegate void HangedBubbleDestroyed(GameObject bubble);
+    public static event HangedBubbleDestroyed OnBubbleDestroyed;
 
     private bool isPopped = false;
 
     public override void Instantiate()
     {
         neighboursJoints = new List<SpringJoint2D>();
-        OnBubbleDestroyed += DeleteJoint;
 
         if (isRoot) return;
         neighbours.ForEach(x => CreateJoint(x.GetComponent<Rigidbody2D>()));
@@ -34,6 +33,7 @@ public class BubbleHang : BubbleState
         gameObject.layer = LayerMask.NameToLayer("Default");
         GetComponent<Rigidbody2D>().bodyType = isRoot ? RigidbodyType2D.Kinematic : RigidbodyType2D.Dynamic;
     }
+
 
     private void OnDestroy()
     {
@@ -59,13 +59,14 @@ public class BubbleHang : BubbleState
         neighboursJoints.Add(joint);
     }
 
-    private void DeleteJoint(GameObject bubble)
+    public void DeleteNeighbour(GameObject bubble)
     {
         int index = neighbours.IndexOf(bubble);
 
         if (index != -1)
         {
             Destroy(neighboursJoints[index]);
+            neighbours.RemoveAt(index);
             neighboursJoints.RemoveAt(index);
         }
     }
@@ -78,17 +79,21 @@ public class BubbleHang : BubbleState
 
     public int Pop(int count = 0)
     {
-        if (!isPopped){
-
+        if (!isPopped)
+        {
             isPopped = true;
 
-            neighbours.ForEach(x =>
+            neighbours.ToList().ForEach(x =>
             {
                 if (x.GetComponent<Bubble>().Color.Equals(GetComponent<Bubble>().Color)) count = x.GetComponent<BubbleHang>().Pop(count+1);
             });
         }
 
-        if (count > 2) Destroy(gameObject);
+        if (count > 2)
+        {
+            neighbours.ForEach(x => { x.GetComponent<BubbleHang>().DeleteNeighbour(gameObject);});
+            Destroy(gameObject);
+        }
         return count;
     }
 }

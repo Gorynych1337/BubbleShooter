@@ -15,7 +15,6 @@ public class MainMenu : MonoBehaviour
     public void OpenDescriptionScene()
     {
         SceneManager.LoadScene(2);
-
     }
 
     public void OpenConfirmExitTip()
