@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
+    [SerializeField] private GameObject ConfirmExitTip;
+
     public void OpenGameScene()
     {
         SceneManager.LoadScene(1);
@@ -14,6 +16,15 @@ public class MainMenu : MonoBehaviour
     {
         SceneManager.LoadScene(2);
 
+    }
+
+    public void OpenConfirmExitTip()
+    {
+        ConfirmExitTip.SetActive(true);
+    }
+    public void CloseConfirmExitTip()
+    {
+        ConfirmExitTip.SetActive(false);
     }
 
     public void Exit()
