@@ -14,7 +14,7 @@ public class GameHuds : MonoBehaviour
 
     private void Start()
     {
-        BubbleHang.OnBubbleDestroyed += AddScore;
+        Bubble.OnBubbleDestroyed += AddScore;
     }
 
     private void AddScore(GameObject bubble)

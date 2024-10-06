@@ -6,8 +6,8 @@ public class DownEdge : MonoBehaviour
 {
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.GetComponent<Bubble>() is null) return;
+        Bubble bubble = collision.GetComponent<Bubble>();
 
-        Destroy(collision.gameObject);
+        if (bubble?.State == EBubbleState.Hang) bubble.DestroyBubble(true);
     }
 }

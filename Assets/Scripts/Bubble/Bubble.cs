@@ -29,6 +29,9 @@ public class Bubble : MonoBehaviour
     public EBubbleColor Color { get { return color; } }
     public EBubbleState State { get { return state; } }
 
+    public delegate void BubbleDestroyed(GameObject bubble);
+    public static event BubbleDestroyed OnBubbleDestroyed;
+
     [ExecuteAlways]
     private void Awake()
     {
@@ -50,6 +53,12 @@ public class Bubble : MonoBehaviour
     {
         visual = GetComponentInChildren<BubbleVisual>();
         visual.Instantiate();
+        SetVisualColor();
+    }
+
+    public void SetColor(EBubbleColor _color)
+    {
+        color = _color;
         SetVisualColor();
     }
 
@@ -80,8 +89,17 @@ public class Bubble : MonoBehaviour
         curentState.OnSetState();
     }
 
+    public void DestroyBubble(bool CreateEvent = false)
+    {
+        hangState.DeleteFromNeighbours();
+
+        if (CreateEvent) OnBubbleDestroyed.Invoke(gameObject);
+        Destroy(gameObject);
+    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        if (collision.gameObject.GetComponent<Bubble>() is not null) hangState.AddNeighbour(collision.gameObject);
         curentState?.CollisionEnterHandler(collision);
     }
 }

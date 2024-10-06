@@ -165,7 +165,7 @@ MonoBehaviour:
   isRoot: 0
   neighbours: []
   frequency: 10
-  distance: 0.59
+  distance: 0.61
 --- !u!114 &6041339108709869457
 MonoBehaviour:
   m_ObjectHideFlags: 0

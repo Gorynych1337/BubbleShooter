@@ -21,12 +21,15 @@ public class BubbleShoot : BubbleState
     private PathDrawer pathDrawer;
 
     private bool isBallFlight;
+    private bool isBubbleDestroyed;
     private bool UITouch;
 
     public override void Instantiate()
     {
         pathDrawer = GetComponent<PathDrawer>();
         pathDrawer.Instantiate();
+
+        isBubbleDestroyed = false;
     }
 
     void Update()
@@ -79,6 +82,7 @@ public class BubbleShoot : BubbleState
 
     private void Release()
     {
+        transform.rotation = Quaternion.Euler(Vector3.zero);
         pathDrawer.Clear();
         isBallFlight = true;
     }
@@ -99,16 +103,19 @@ public class BubbleShoot : BubbleState
 
         if (bubble is null) return;
 
-        if (bubble.State == EBubbleState.Hang)
+        if (shotPull >= maxShotPull && !isBubbleDestroyed)
         {
-            GetComponent<Bubble>().SetState(EBubbleState.Hang);
-            GetComponent<BubbleHang>().AddNeighbour(collision.gameObject);
+            isBubbleDestroyed = true;
 
-            if (bubble.Color.Equals(GetComponent<Bubble>().Color))
-            {
-                GetComponent<BubbleHang>().Pop();
-            }
+            bubble.SetColor(GetComponent<Bubble>().Color);
+            GetComponent<Bubble>().DestroyBubble(true);
+            bubble.GetComponent<BubbleHang>().Pop();
+            return;
         }
+
+        GetComponent<Bubble>().SetState(EBubbleState.Hang);
+        GetComponent<BubbleHang>().AddNeighbour(collision.gameObject);
+        GetComponent<BubbleHang>().Pop();
     }
 
     public override void OnSetState()

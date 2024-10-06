@@ -15,9 +15,6 @@ public class BubbleHang : BubbleState
     [SerializeField] private float frequency;
     [SerializeField] private float distance;
 
-    public delegate void HangedBubbleDestroyed(GameObject bubble);
-    public static event HangedBubbleDestroyed OnBubbleDestroyed;
-
     private bool isPopped = false;
 
     public override void Instantiate()
@@ -34,10 +31,9 @@ public class BubbleHang : BubbleState
         GetComponent<Rigidbody2D>().bodyType = isRoot ? RigidbodyType2D.Kinematic : RigidbodyType2D.Dynamic;
     }
 
-
-    private void OnDestroy()
+    public void DeleteFromNeighbours()
     {
-        OnBubbleDestroyed.Invoke(gameObject);
+        neighbours.ForEach(x => { x.GetComponent<BubbleHang>().DeleteNeighbour(gameObject); });
     }
 
     public void AddNeighbour(GameObject neighbour)
@@ -65,16 +61,16 @@ public class BubbleHang : BubbleState
 
         if (index != -1)
         {
-            Destroy(neighboursJoints[index]);
             neighbours.RemoveAt(index);
+            if (isRoot) return;
+            Destroy(neighboursJoints[index]);
             neighboursJoints.RemoveAt(index);
         }
     }
 
     public override void CollisionEnterHandler(Collision2D collision)
     {
-        if (collision.gameObject.GetComponent<Bubble>() is null) return;
-        AddNeighbour(collision.gameObject);
+        return;
     }
 
     public int Pop(int count = 0)
@@ -89,11 +85,8 @@ public class BubbleHang : BubbleState
             });
         }
 
-        if (count > 2)
-        {
-            neighbours.ForEach(x => { x.GetComponent<BubbleHang>().DeleteNeighbour(gameObject);});
-            Destroy(gameObject);
-        }
+        if (count > 2) GetComponent<Bubble>().DestroyBubble(true);
+        
         return count;
     }
 }
