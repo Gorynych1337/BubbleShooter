@@ -19,9 +19,10 @@ public class BubbleHang : BubbleState
 
     public override void Instantiate()
     {
-        neighboursJoints = new List<SpringJoint2D>();
+        if (neighbours is null) neighbours = new List<GameObject>();
 
         if (isRoot) return;
+        neighboursJoints = new List<SpringJoint2D>();
         neighbours.ForEach(x => CreateJoint(x.GetComponent<Rigidbody2D>()));
     }
 
@@ -88,5 +89,10 @@ public class BubbleHang : BubbleState
         if (count > 2) GetComponent<Bubble>().DestroyBubble(true);
         
         return count;
+    }
+
+    public void SetRooted()
+    {
+        isRoot = true;
     }
 }

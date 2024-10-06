@@ -22,6 +22,7 @@ public class Bubble : MonoBehaviour
     private BubbleShoot shootState;
     private BubbleHang hangState;
     private BubbleState curentState;
+    private bool isDestroyed = false;
 
     private BubbleVisual visual;
     [SerializeField] private EBubbleColor color;
@@ -91,6 +92,9 @@ public class Bubble : MonoBehaviour
 
     public void DestroyBubble(bool CreateEvent = false)
     {
+        if (isDestroyed) return;
+        isDestroyed = true;
+
         hangState.DeleteFromNeighbours();
 
         if (CreateEvent) OnBubbleDestroyed.Invoke(gameObject);

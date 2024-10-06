@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using UnityEngine;
 
+[ExecuteAlways]
 public class ScreenEdges : MonoBehaviour
 {
     [SerializeField] private GameObject upEdgeObject;
     [SerializeField] private GameObject downEdgeObject;
+    [SerializeField] private float upMargin;
 
     EdgeCollider2D edgeCollider;
     EdgeCollider2D upEdgeCollider;
@@ -23,8 +25,8 @@ public class ScreenEdges : MonoBehaviour
     {
         List<Vector2> screenPoints = new List<Vector2>();
         screenPoints.Add(Camera.main.ScreenToWorldPoint(new Vector2(0,0)));
-        screenPoints.Add(Camera.main.ScreenToWorldPoint(new Vector2(0, Screen.height)));
-        screenPoints.Add(Camera.main.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height)));
+        screenPoints.Add(Camera.main.ScreenToWorldPoint(new Vector2(0, Screen.height - upMargin)));
+        screenPoints.Add(Camera.main.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height - upMargin)));
         screenPoints.Add(Camera.main.ScreenToWorldPoint(new Vector2(Screen.width, 0)));
 
         edgeCollider.SetPoints(screenPoints);

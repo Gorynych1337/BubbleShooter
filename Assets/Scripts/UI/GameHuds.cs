@@ -9,17 +9,13 @@ public class GameHuds : MonoBehaviour
     [SerializeField] private GameObject ConfirmExitTip;
     [SerializeField] private TMP_Text ScoreText;
 
-    [SerializeField] [InspectorName("Score for one bubble")] private int bubbleScore;
-    private int score;
-
     private void Start()
     {
-        Bubble.OnBubbleDestroyed += AddScore;
+        ScoreSystem.OnScoreChanged += AddScore;
     }
 
-    private void AddScore(GameObject bubble)
+    private void AddScore(int score)
     {
-        score += bubbleScore;
         ScoreText.text = score.ToString();
     }
 
