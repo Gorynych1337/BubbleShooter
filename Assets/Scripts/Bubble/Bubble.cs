@@ -95,9 +95,9 @@ public class Bubble : MonoBehaviour
         if (isDestroyed) return;
         isDestroyed = true;
 
+        if (CreateEvent) OnBubbleDestroyed.Invoke(gameObject);
         hangState.DeleteFromNeighbours();
 
-        if (CreateEvent) OnBubbleDestroyed.Invoke(gameObject);
         Destroy(gameObject);
     }
 

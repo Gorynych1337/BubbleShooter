@@ -8,6 +8,7 @@ using UnityEngine;
 public class BubbleHang : BubbleState
 {
     [SerializeField] private bool isRoot;
+    public bool IsRoot { get { return isRoot; } }
     [SerializeField] private List<GameObject> neighbours;
     private List<SpringJoint2D> neighboursJoints;
 
@@ -29,7 +30,9 @@ public class BubbleHang : BubbleState
     public override void OnSetState()
     {
         gameObject.layer = LayerMask.NameToLayer("Default");
-        GetComponent<Rigidbody2D>().bodyType = isRoot ? RigidbodyType2D.Kinematic : RigidbodyType2D.Dynamic;
+
+        if (!isRoot) return;
+        gameObject.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY;
     }
 
     public void DeleteFromNeighbours()
