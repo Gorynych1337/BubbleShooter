@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameState : MonoBehaviour
 {
@@ -8,8 +10,9 @@ public class GameState : MonoBehaviour
     int rootBubbles = 0;
     int currentBubbles = 0;
 
-    delegate void Win();
-    static event Win WinEventHandler;
+    public delegate void GameEndDelegate();
+    public static event GameEndDelegate OnWin;
+    public static event GameEndDelegate OnLose;
 
     void Start()
     {
@@ -23,13 +26,36 @@ public class GameState : MonoBehaviour
         currentBubbles = rootBubbles;
 
         Bubble.OnBubbleDestroyed += OnBubbleDestroyed;
+        BubbleQueue.OnQueueEnd += OnQueueEnd;
 
-        WinEventHandler += GameState_WinEventHandler;
+        OnWin += GameState_OnWin;
+        OnLose += GameState_OnLose;
     }
 
-    private void GameState_WinEventHandler()
+    private void GameEnd()
     {
+        Bubble.OnBubbleDestroyed -= OnBubbleDestroyed;
+        BubbleQueue.OnQueueEnd -= OnQueueEnd;
+        SceneManager.LoadScene(1);
+    }
+
+    private void GameState_OnLose()
+    {
+        if (this == null) return;
+        GameEnd();
+        Debug.Log("Lose");
+    }
+
+    private void GameState_OnWin()
+    {
+        if (this == null) return;
+        GameEnd();
         Debug.Log("Win");
+    }
+
+    private void OnQueueEnd()
+    {
+        OnLose?.Invoke();
     }
 
     private void OnBubbleDestroyed(GameObject bubble)
@@ -38,6 +64,6 @@ public class GameState : MonoBehaviour
 
         currentBubbles--;
 
-        if ((float)currentBubbles / rootBubbles * 100 <= WinPercent) WinEventHandler?.Invoke();
+        if ((float)currentBubbles / rootBubbles * 100 <= WinPercent) OnWin?.Invoke();
     }
 }

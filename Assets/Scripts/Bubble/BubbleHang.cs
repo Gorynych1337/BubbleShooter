@@ -1,8 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 
 public class BubbleHang : BubbleState
@@ -30,9 +27,15 @@ public class BubbleHang : BubbleState
     public override void OnSetState()
     {
         gameObject.layer = LayerMask.NameToLayer("Default");
+        GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
 
         if (!isRoot) return;
-        gameObject.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY;
+        gameObject.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
+    }
+
+    public override void OnDestroyHandler()
+    {
+        return;
     }
 
     public void DeleteFromNeighbours()

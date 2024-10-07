@@ -22,44 +22,70 @@ public class BubbleShoot : BubbleState
 
     private bool isBallFlight;
     private bool isBubbleDestroyed;
-    private bool UITouch;
+    private GameObject UITouch;
+
+    public delegate void BubbleShootDelegate();
+    public static event BubbleShootDelegate OnStick;
 
     public override void Instantiate()
     {
         pathDrawer = GetComponent<PathDrawer>();
         pathDrawer.Instantiate();
 
+
         isBubbleDestroyed = false;
+    }
+    public override void OnSetState()
+    {
+        GetComponent<Collider2D>().enabled = false;
+        GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Kinematic;
+        gameObject.layer = LayerMask.NameToLayer("PlayableBubbles");
+    }
+
+    public override void OnDestroyHandler()
+    {
+        OnStick?.Invoke();
     }
 
     void Update()
     {
-        if (Input.touchCount > 0) touch = Input.GetTouch(0);
-
-        if (UITouchCheck(touch)) return;
-
-        switch (touch.phase)
+        if (isBallFlight)
         {
-            case TouchPhase.Began: Touch(); break;
-            case TouchPhase.Moved: Drag(); break;
-            case TouchPhase.Ended: Release(); break;
-            default: break;
+            BallFlight();
         }
+        else
+        {
+            if (Input.touchCount > 0) touch = Input.GetTouch(0);
 
-        if (isBallFlight) BallFlight();
+            if (!UITouchCheck(touch))
+            {
+                switch (touch.phase)
+                {
+                    case TouchPhase.Began: Touch(); break;
+                    case TouchPhase.Moved: Drag(); break;
+                    case TouchPhase.Ended: Release(); break;
+                    default: break;
+                }
+            }
+        }
     }
 
     private bool UITouchCheck(Touch touch)
     {
-        if (EventSystem.current.IsPointerOverGameObject(touch.fingerId)) UITouch = true;
-
-        if (touch.phase == TouchPhase.Ended && UITouch)
+        if (EventSystem.current.IsPointerOverGameObject(touch.fingerId))
         {
-            UITouch = false;
+            UITouch = EventSystem.current.currentSelectedGameObject;
             return true;
         }
 
-        return UITouch;
+        if (EventSystem.current.currentSelectedGameObject == null) return false;
+
+        if (touch.phase == TouchPhase.Ended && EventSystem.current.currentSelectedGameObject.Equals(UITouch))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private void Touch()
@@ -82,6 +108,7 @@ public class BubbleShoot : BubbleState
 
     private void Release()
     {
+        GetComponent<Collider2D>().enabled = true;
         transform.rotation = Quaternion.Euler(Vector3.zero);
         pathDrawer.Clear();
         isBallFlight = true;
@@ -89,7 +116,7 @@ public class BubbleShoot : BubbleState
 
     private void BallFlight()
     {
-        transform.position += shotDirection * Time.deltaTime * shotAcceleration;
+        transform.position += shotDirection * Time.deltaTime * shotAcceleration * shotPull;
     }
 
     public void Bounce()
@@ -110,17 +137,14 @@ public class BubbleShoot : BubbleState
             bubble.SetColor(GetComponent<Bubble>().Color);
             GetComponent<Bubble>().DestroyBubble(true);
             bubble.GetComponent<BubbleHang>().Pop();
-            return;
+        }
+        else
+        {
+            GetComponent<Bubble>().SetState(EBubbleState.Hang);
+            GetComponent<BubbleHang>().AddNeighbour(collision.gameObject);
+            GetComponent<BubbleHang>().Pop();
         }
 
-        GetComponent<Bubble>().SetState(EBubbleState.Hang);
-        GetComponent<BubbleHang>().AddNeighbour(collision.gameObject);
-        GetComponent<BubbleHang>().Pop();
-    }
-
-    public override void OnSetState()
-    {
-        GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Kinematic;
-        gameObject.layer = LayerMask.NameToLayer("PlayableBubbles");
+        OnStick.Invoke();
     }
 }

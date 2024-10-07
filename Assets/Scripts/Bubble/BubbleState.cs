@@ -8,5 +8,7 @@ public abstract class BubbleState: MonoBehaviour
 
     public abstract void OnSetState();
 
+    public abstract void OnDestroyHandler();
+
     public abstract void CollisionEnterHandler(Collision2D collision);
 }
