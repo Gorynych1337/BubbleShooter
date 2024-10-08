@@ -1,9 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -68,6 +65,8 @@ public class BubbleQueue : MonoBehaviour
 
     private void SpawnBubble()
     {
+        if (this == null) return;
+
         if (bubbleColors.Count == 0)
         {
             OnQueueEnd?.Invoke();

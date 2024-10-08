@@ -13,6 +13,7 @@ public class BubbleShoot : BubbleState
     [SerializeField] private float rotationSpeed;
     [SerializeField] private float maxShotPull;
     [SerializeField] private float shotAcceleration;
+    [SerializeField] private float spreadAngle;
 
     private Touch touch;
     private Vector3 startDragPosition;
@@ -30,8 +31,6 @@ public class BubbleShoot : BubbleState
     public override void Instantiate()
     {
         pathDrawer = GetComponent<PathDrawer>();
-        pathDrawer.Instantiate();
-
 
         isBubbleDestroyed = false;
     }
@@ -103,14 +102,24 @@ public class BubbleShoot : BubbleState
         transform.rotation = Quaternion.Euler(new Vector3(0, 0, Mathf.Clamp(rotation, -maxShotAngle, maxShotAngle)));
         shotDirection = transform.TransformDirection(Vector3.up);
 
-        if (shotPull > 0f) pathDrawer.Draw(shotDirection, shotPull >= maxShotPull);
+        if (shotPull > 0f) pathDrawer.Draw(shotDirection, shotPull >= maxShotPull, spreadAngle);
+
+        if (shotPull >= maxShotPull)
+        {
+            float angle = Mathf.Asin(shotDirection.x) * Mathf.Rad2Deg;
+            angle += UnityEngine.Random.Range(-spreadAngle, spreadAngle);
+            shotDirection = new Vector3(Mathf.Sin(angle * Mathf.Deg2Rad), Mathf.Cos(angle * Mathf.Deg2Rad));
+        }
     }
 
     private void Release()
     {
-        GetComponent<Collider2D>().enabled = true;
-        transform.rotation = Quaternion.Euler(Vector3.zero);
         pathDrawer.Clear();
+        transform.rotation = Quaternion.Euler(Vector3.zero);
+
+        if (shotPull <= 0) return;
+
+        GetComponent<Collider2D>().enabled = true;
         isBallFlight = true;
     }
 
@@ -138,13 +147,12 @@ public class BubbleShoot : BubbleState
             GetComponent<Bubble>().DestroyBubble(true);
             bubble.GetComponent<BubbleHang>().Pop();
         }
-        else
+        else if (shotPull < maxShotPull)
         {
             GetComponent<Bubble>().SetState(EBubbleState.Hang);
             GetComponent<BubbleHang>().AddNeighbour(collision.gameObject);
             GetComponent<BubbleHang>().Pop();
+            OnStick.Invoke();
         }
-
-        OnStick.Invoke();
     }
 }
