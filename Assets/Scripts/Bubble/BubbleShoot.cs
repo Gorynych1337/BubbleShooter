@@ -12,6 +12,7 @@ public class BubbleShoot : BubbleState
     [SerializeField][Range(30f, 80f)] private float maxShotAngle;
     [SerializeField] private float rotationSpeed;
     [SerializeField] private float maxShotPull;
+    [SerializeField] private float minShotPull;
     [SerializeField] private float shotAcceleration;
     [SerializeField] private float spreadAngle;
 
@@ -96,7 +97,7 @@ public class BubbleShoot : BubbleState
     private void Drag()
     {
         Vector3 dragDirection = startDragPosition - Camera.main.ScreenToWorldPoint(touch.position);
-        shotPull = dragDirection.y + Mathf.Abs(dragDirection.x);
+        shotPull = Mathf.Clamp (dragDirection.y + Mathf.Abs(dragDirection.x), minShotPull, maxShotPull);
         float rotation = -dragDirection.x * rotationSpeed;
 
         transform.rotation = Quaternion.Euler(new Vector3(0, 0, Mathf.Clamp(rotation, -maxShotAngle, maxShotAngle)));
@@ -150,8 +151,9 @@ public class BubbleShoot : BubbleState
         else if (shotPull < maxShotPull)
         {
             GetComponent<Bubble>().SetState(EBubbleState.Hang);
-            GetComponent<BubbleHang>().AddNeighbour(collision.gameObject);
-            GetComponent<BubbleHang>().Pop();
+            BubbleHang hang = GetComponent<BubbleHang>();
+            hang.AddNeighbour(collision.gameObject);
+            hang.Pop();
             OnStick.Invoke();
         }
     }

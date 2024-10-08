@@ -30,6 +30,11 @@ public class BubbleQueue : MonoBehaviour
         SpawnBubble();
     }
 
+    private void OnDisable()
+    {
+        BubbleShoot.OnStick -= SpawnBubble;
+    }
+
     [ExecuteAlways]
     private void OnValidate()
     {
@@ -47,7 +52,7 @@ public class BubbleQueue : MonoBehaviour
         {
             var random = new System.Random();
             var colorArray = Enum.GetValues(typeof(EBubbleColor));
-            bubbleColorsList.Select(x => (EBubbleColor)colorArray.GetValue(random.Next(colorArray.Length)));
+            bubbleColorsList = bubbleColorsList.Select(x => (EBubbleColor)colorArray.GetValue(random.Next(colorArray.Length))).ToList();
         }
     }
 

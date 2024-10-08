@@ -22,6 +22,8 @@ public class BubbleHang : BubbleState
         if (isRoot) return;
         neighboursJoints = new List<SpringJoint2D>();
         neighbours.ForEach(x => CreateJoint(x.GetComponent<Rigidbody2D>()));
+
+        BubbleShoot.OnStick += SetUnpopped;
     }
 
     public override void OnSetState()
@@ -35,7 +37,7 @@ public class BubbleHang : BubbleState
 
     public override void OnDestroyHandler()
     {
-        return;
+        BubbleShoot.OnStick -= SetUnpopped;
     }
 
     public void DeleteFromNeighbours()
@@ -85,14 +87,22 @@ public class BubbleHang : BubbleState
         if (!isPopped)
         {
             isPopped = true;
+            count++;
 
             neighbours.ToList().ForEach(x =>
             {
-                if (x.GetComponent<Bubble>().Color.Equals(GetComponent<Bubble>().Color)) count = x.GetComponent<BubbleHang>().Pop(count+1);
+                if (x.GetComponent<Bubble>().Color == GetComponent<Bubble>().Color) count = x.GetComponent<BubbleHang>().Pop(count);
             });
         }
 
-        if (count > 2) GetComponent<Bubble>().DestroyBubble(true);
+        if (count > 2)
+        {
+            GetComponent<Bubble>().DestroyBubble(true);
+            neighbours.ToList().ForEach(x =>
+            {
+                if (x.GetComponent<Bubble>().Color == GetComponent<Bubble>().Color) count = x.GetComponent<BubbleHang>().Pop(count);
+            });
+        }
         
         return count;
     }
@@ -100,5 +110,10 @@ public class BubbleHang : BubbleState
     public void SetRooted()
     {
         isRoot = true;
+    }
+
+    private void SetUnpopped()
+    {
+        isPopped = false;
     }
 }

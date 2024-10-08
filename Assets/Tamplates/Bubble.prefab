@@ -435,7 +435,7 @@ MonoBehaviour:
   isRoot: 0
   neighbours: []
   frequency: 10
-  distance: 0.61
+  distance: 0.59
 --- !u!114 &6041339108709869457
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -450,8 +450,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxShotAngle: 60
   rotationSpeed: 60
-  maxShotPull: 3
-  shotAcceleration: 3
+  maxShotPull: 2
+  minShotPull: 1
+  shotAcceleration: 4
   spreadAngle: 10
 --- !u!114 &4334110455330358212
 MonoBehaviour:
