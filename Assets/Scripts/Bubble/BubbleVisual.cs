@@ -15,4 +15,9 @@ public class BubbleVisual : MonoBehaviour
     {
         sprite.color = color;
     }
+
+    public void DestroyBubble(float multiplier)
+    {
+        transform.localScale += transform.localScale * multiplier;
+    } 
 }

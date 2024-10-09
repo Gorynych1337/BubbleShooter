@@ -20,7 +20,7 @@ public class BubbleHang : BubbleState
         if (neighbours is null) neighbours = new List<GameObject>();
 
         BubbleShoot.OnStick += SetUnpopped;
-
+        Bubble.OnBubbleDestroyed += (ctx) => DeleteNeighbour(null);
 
         if (isRoot) return;
         neighboursJoints = new List<SpringJoint2D>();
@@ -39,11 +39,7 @@ public class BubbleHang : BubbleState
     public override void OnDestroyHandler()
     {
         BubbleShoot.OnStick -= SetUnpopped;
-    }
-
-    public void DeleteFromNeighbours()
-    {
-        neighbours.ForEach(x => { x.GetComponent<BubbleHang>().DeleteNeighbour(gameObject); });
+        Bubble.OnBubbleDestroyed -= (ctx) => DeleteNeighbour(null);
     }
 
     public void AddNeighbour(GameObject neighbour)
@@ -63,6 +59,19 @@ public class BubbleHang : BubbleState
         joint.connectedBody = connectedBody;
         joint.frequency = frequency;
         neighboursJoints.Add(joint);
+    }
+
+    public void DeleteFromNeighbours()
+    {
+        var thisGameObj = gameObject;
+
+        neighbours.ForEach(x =>
+        {
+            if (x != null)
+            {
+                x.GetComponent<BubbleHang>().DeleteNeighbour(thisGameObj);
+            }
+        });
     }
 
     public void DeleteNeighbour(GameObject bubble)
@@ -89,22 +98,31 @@ public class BubbleHang : BubbleState
         {
             isPopped = true;
             count++;
-
-            neighbours.ToList().ForEach(x =>
-            {
-                if (x.GetComponent<Bubble>().Color == GetComponent<Bubble>().Color) count = x.GetComponent<BubbleHang>().Pop(count);
-            });
+            count = CallPop(count);
         }
 
         if (count > 2)
         {
             GetComponent<Bubble>().DestroyBubble(true);
-            neighbours.ToList().ForEach(x =>
-            {
-                if (x.GetComponent<Bubble>().Color == GetComponent<Bubble>().Color) count = x.GetComponent<BubbleHang>().Pop(count);
-            });
+            count = CallPop(count);
         }
         
+        return count;
+    }
+
+    private int CallPop(int count)
+    {
+        neighbours.ToList().ForEach(x =>
+        {
+            if (x == null)
+            {
+                DeleteNeighbour(x);
+            }
+            else
+            {
+                if (x.GetComponent<Bubble>().Color == GetComponent<Bubble>().Color) count = x.GetComponent<BubbleHang>().Pop(count);
+            }
+        });
         return count;
     }
 

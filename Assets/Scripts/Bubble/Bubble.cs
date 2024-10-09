@@ -24,6 +24,7 @@ public class Bubble : MonoBehaviour
     private BubbleState curentState;
     private bool isDestroyed = false;
 
+    [SerializeField] private int destroyFrames;
     private BubbleVisual visual;
     [SerializeField] private EBubbleColor color;
 
@@ -33,8 +34,13 @@ public class Bubble : MonoBehaviour
     public delegate void BubbleDestroyed(GameObject bubble);
     public static event BubbleDestroyed OnBubbleDestroyed;
 
-    [ExecuteAlways]
     private void Awake()
+    {
+        Instantiate();
+    }
+
+    [ExecuteAlways]
+    public void Instantiate()
     {
         shootState = GetComponentInChildren<BubbleShoot>();
         hangState = GetComponentInChildren<BubbleHang>();
@@ -94,15 +100,30 @@ public class Bubble : MonoBehaviour
     {
         if (isDestroyed) return;
         isDestroyed = true;
+        StartCoroutine("DestroyAnimation");
         hangState.DeleteFromNeighbours();
         curentState.OnDestroyHandler();
         if (CreateEvent) OnBubbleDestroyed?.Invoke(gameObject);
-        Destroy(gameObject);
+
+        Destroy(gameObject, Time.fixedDeltaTime * destroyFrames);
+    }
+
+    private IEnumerator DestroyAnimation()
+    {
+        for (int i = 0; i < destroyFrames; i++)
+        {
+            if (visual == null) yield return null; 
+            visual.DestroyBubble(1f / destroyFrames);
+            yield return new WaitForFixedUpdate();
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.GetComponent<Bubble>() is not null) hangState.AddNeighbour(collision.gameObject);
+        if (collision.gameObject?.GetComponent<Bubble>() != null)
+        {
+            hangState.AddNeighbour(collision.gameObject);
+        }
         curentState?.CollisionEnterHandler(collision);
     }
 }
