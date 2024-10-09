@@ -19,11 +19,12 @@ public class BubbleHang : BubbleState
     {
         if (neighbours is null) neighbours = new List<GameObject>();
 
+        BubbleShoot.OnStick += SetUnpopped;
+
+
         if (isRoot) return;
         neighboursJoints = new List<SpringJoint2D>();
         neighbours.ForEach(x => CreateJoint(x.GetComponent<Rigidbody2D>()));
-
-        BubbleShoot.OnStick += SetUnpopped;
     }
 
     public override void OnSetState()

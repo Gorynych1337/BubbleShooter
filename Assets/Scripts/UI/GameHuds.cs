@@ -7,11 +7,24 @@ using UnityEngine.SceneManagement;
 public class GameHuds : MonoBehaviour
 {
     [SerializeField] private GameObject ConfirmExitTip;
+    [SerializeField] private GameObject EndGameScreen;
     [SerializeField] private TMP_Text ScoreText;
 
     private void Start()
     {
         ScoreSystem.OnScoreChanged += AddScore;
+        GameState.OnWin += OpenWinScreen;
+        GameState.OnLose += OpenLoseScreen;
+    }
+
+    private void OpenWinScreen() => OpenGameEnd(true);
+    private void OpenLoseScreen() => OpenGameEnd(false);
+
+    private void OnDisable()
+    {
+        ScoreSystem.OnScoreChanged -= AddScore;
+        GameState.OnWin -= OpenWinScreen;
+        GameState.OnLose -= OpenLoseScreen;
     }
 
     private void AddScore(int score)
@@ -35,5 +48,18 @@ public class GameHuds : MonoBehaviour
     {
         Pause.RemovePause();
         SceneManager.LoadScene(0);
+    }
+
+    public void RestartLevel()
+    {
+        Pause.RemovePause();
+        SceneManager.LoadScene(1);
+    }
+
+    public void OpenGameEnd(bool isWin)
+    {
+        Pause.SetPause();
+        EndGameScreen.SetActive(true);
+        EndGameScreen.GetComponent<EndGameScreen>().Instantiate(isWin);
     }
 }

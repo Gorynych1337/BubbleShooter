@@ -36,7 +36,6 @@ public class GameState : MonoBehaviour
     {
         Bubble.OnBubbleDestroyed -= OnBubbleDestroyed;
         BubbleQueue.OnQueueEnd -= OnQueueEnd;
-        SceneManager.LoadScene(1);
     }
 
     private void GameState_OnLose()
